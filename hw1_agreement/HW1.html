@@ -135,6 +135,9 @@ $(document).ready(function () {
 <li><a href="#section-5">2.1</a></li>
 <li><a href="#section-6">2.2</a></li>
 <li><a href="#section-7">2.3</a></li>
+<li><a href="#section-8">2.4</a></li>
+<li><a href="#section-9">2.5</a></li>
+<li><a href="#section-10">2.6</a></li>
 </ul></li>
 </ul>
 </div>
@@ -240,51 +243,63 @@ summarise(n = length(unique(SubjectCode)))</code></pre>
 </div>
 <div id="section-7" class="section level3">
 <h3>2.3</h3>
+<p>Преобразование и процент полного согласия:</p>
 <pre class="r"><code>df2 %&gt;% 
-  select(SubjectCode, Score,    GivenScore, Stimulus,   Prefix, WordType,   CorpusFrequency) %&gt;% 
+  select(SubjectCode, GivenScore,   Stimulus,   Prefix, WordType,   CorpusFrequency) %&gt;% 
   spread(key = SubjectCode, value = GivenScore) -&gt; 
   df2.3
-na.omit(df2.3)</code></pre>
-<pre><code>##    Score  Stimulus Prefix WordType CorpusFrequency AC AD AE AG AH AI AJ AK
-## 1      A  objasnit      o standard           18149  5  5  5  5  5  5  5  5
-## 9      A  okruglit      o standard             939  5  5  5  5  5  5  5  5
-## 29     A uluchshit      u standard            1899  5  5  5  5  5  5  5  5
-## 31     A  umenshit      u standard            2010  5  5  5  5  5  5  5  5
-## 33     A  uprostit      u standard            1350  5  5  5  5  5  5  5  5
-## 36     A   uskorit      u standard            2008  5  5  5  5  5  5  5  5
-## 37     A uslozhnit      u standard             311  5  5  5  5  5  5  5  5
-##    AL AM AN AO AP AR AU AW BA BB BC BD BE BF BH BJ BK BL BM BN BO BP BS BT
-## 1   5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 9   5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 29  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 31  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 33  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 36  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 37  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-##    BU BW BY BZ CA CB CC CD CE CH CI CJ CK CM CP CR CS CT DC DE DF DI DJ DK
-## 1   5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 9   5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 29  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 31  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 33  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 36  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 37  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-##    DL DM DN DO DP DS DT DU DW DY EA EB EC EE EG EI EJ EK EL EM EN EO EP ER
-## 1   5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 9   5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 29  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 31  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 33  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 36  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-## 37  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
-##    ES EU EW FA FB FC FD FE FG
-## 1   5  5  5  5  5  5  5  5  5
-## 9   5  5  5  5  5  5  5  5  5
-## 29  5  5  5  5  5  5  5  5  5
-## 31  5  5  5  5  5  5  5  5  5
-## 33  5  5  5  5  5  5  5  5  5
-## 36  5  5  5  5  5  5  5  5  5
-## 37  5  5  5  5  5  5  5  5  5</code></pre>
+df2.3 &lt;- na.omit(df2.3)
+
+agree(df2.3[5:93])</code></pre>
+<pre><code>##  Percentage agreement (Tolerance=0)
+## 
+##  Subjects = 59 
+##    Raters = 89 
+##   %-agree = 11.9</code></pre>
+</div>
+<div id="section-8" class="section level3">
+<h3>2.4</h3>
+<p>Каппа Фляйса:</p>
+<pre class="r"><code>kappam.fleiss(df2.3[5:93])</code></pre>
+<pre><code>##  Fleiss' Kappa for m Raters
+## 
+##  Subjects = 59 
+##    Raters = 89 
+##     Kappa = 0.399 
+## 
+##         z = 332 
+##   p-value = 0</code></pre>
+</div>
+<div id="section-9" class="section level3">
+<h3>2.5</h3>
+<p>ICC преобразованного датасета</p>
+<pre class="r"><code>icc(df2.3[5:93], model = &quot;twoway&quot;, type = &quot;agreement&quot;)</code></pre>
+<pre><code>##  Single Score Intraclass Correlation
+## 
+##    Model: twoway 
+##    Type : agreement 
+## 
+##    Subjects = 59 
+##      Raters = 89 
+##    ICC(A,1) = 0.754
+## 
+##  F-Test, H0: r0 = 0 ; H1: r0 &gt; 0 
+##  F(58,2408) = 319 , p = 0 
+## 
+##  95%-Confidence Interval for ICC Population Values:
+##   0.686 &lt; ICC &lt; 0.821</code></pre>
+</div>
+<div id="section-10" class="section level3">
+<h3>2.6</h3>
+<p>Минимальное и максимальное значения попарной корреляции Кендала ответов всех участников эксперимента:</p>
+<pre class="r"><code>df2.6 &lt;- data.frame(as.table(cor(df2.3[5:93], method = &quot;kendall&quot;)))
+df2.6.2 &lt;- df2.6[which(df2.6$Freq &lt; 1),]
+as_tibble(df2.6.2) %&gt;%
+  summarise(min = min(Freq), max =  max(Freq))</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##     min   max
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1 0.242 0.920</code></pre>
 </div>
 </div>
 

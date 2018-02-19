@@ -53,7 +53,6 @@ kappa2(df1.3)
 
 ### 1.4
 Каппа Фляйса для всех спикеров:
-
 ```{r}
 kappam.fleiss(df1.2[4:19])
 ```
@@ -83,10 +82,33 @@ df2 %>%
   summarise(mean = mean(GivenScore))
 ```
 ###2.3
+Преобразование и процент полного согласия:
 ```{r}
+
 df2 %>% 
-  select(SubjectCode, Score,	GivenScore,	Stimulus,	Prefix,	WordType,	CorpusFrequency) %>% 
+  select(SubjectCode, GivenScore,	Stimulus,	Prefix,	WordType,	CorpusFrequency) %>% 
   spread(key = SubjectCode, value = GivenScore) -> 
   df2.3
-na.omit(df2.3)
+df2.3 <- na.omit(df2.3)
+
+agree(df2.3[5:93])
 ```
+###2.4
+Каппа Фляйса:
+```{r}
+kappam.fleiss(df2.3[5:93])
+```
+###2.5
+ICC преобразованного датасета
+```{r}
+icc(df2.3[5:93], model = "twoway", type = "agreement")
+```
+###2.6
+Минимальное и максимальное значения попарной корреляции Кендала ответов всех участников эксперимента:
+```{r}
+df2.6 <- data.frame(as.table(cor(df2.3[5:93], method = "kendall")))
+df2.6.2 <- df2.6[which(df2.6$Freq < 1),]
+as_tibble(df2.6.2) %>%
+  summarise(min = min(Freq), max =  max(Freq))
+```
+
