@@ -1,0 +1,127 @@
+---
+title: "Домашняя работа 3"
+author: "Матвей Соколовский"
+date: "06.03.2018"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(irr)
+library(knitr)
+library(mosaic)
+library(bootstrap)
+```
+## Фамильная честь Вустеров
+### 1.1
+Употребление слова "сэр" в каждой главе по отдельности и во всех главах в целом:
+```{r}
+df <- read.csv("hw3_wodehouse.csv",
+              sep = ",",
+              header = TRUE,
+              encoding = "UTF-8")
+
+df %>% 
+  count(chapter) -> df1.1
+df %>%
+  filter(word == "сэр") %>% 
+  count(chapter) -> df1.2
+
+df1.1$n_sr <-  df1.2$n
+df1.1$sr_procent <- df1.1$n_sr / df1.1$n
+grand_mean = mean(df1.1$sr_procent)
+
+m <- data.frame(chapter="grand_mean", sr_procent = grand_mean)
+
+df1.1 %>%
+  select(chapter, sr_procent) -> df1.3
+
+result <- rbind(df1.3, m)
+as_tibble(result)
+```
+### 1.2
+Доверительный интервал для средней доли слова "сэр", полученный методом бутстрэпа:
+```{r}
+set.seed(42)
+
+df_bs <- bootstrap(df1.1$sr_procent, nboot = 10000, theta = mean)$thetastar
+
+df_bs <- data_frame(means = df_bs)  
+df_bs %>%
+  summarise(mean = mean(means),
+            q1 = quantile(means, 0.025),
+            q2 = quantile(means, 0.975)) -> 
+  df2
+as_tibble(df2) 
+```
+### 1.3
+Данные о главе с максимальным биномиальным доверительным интервалом употребления слова “сэр”:
+```{r}
+df1.1 %>% 
+  group_by(chapter) %>%
+  mutate(low_ci = binom.test(x = n_sr, n = n, ci.method = "Clopper-Pearson")$conf.int[1],
+         up_ci = binom.test(x = n_sr, n = n, ci.method = "Clopper-Pearson")$conf.int[2]) -> df3
+
+df3 <- mutate(df3, average = up_ci - low_ci)
+
+max_ci <- df3[df3$average == max(df3$average),]
+max_ci %>%
+  select(chapter, average) -> max_ci
+as_tibble(max_ci)
+```
+### 1.4
+Данные о главе с максимальным байесовским биномиальным доверительным интервалом употребления слова “сэр”:
+```{r}
+mu <- mean(df3$sr_procent)
+var <- var(df3$sr_procent)
+alpha0 <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+beta0 <- alpha0 * (1 / mu - 1)
+
+df3 %>% 
+  group_by(chapter) %>% 
+  mutate(alpha_post = n_sr+alpha0,
+         beta_post = n-n_sr+beta0,
+         average_post = alpha_post/(alpha_post+beta_post),
+         post_low = qbeta(.025, alpha_post, beta_post),
+         post_hight = qbeta(.975, alpha_post, beta_post),
+         length = post_hight - post_low) -> full_df
+
+max_ci_post <- full_df[full_df$length == max(full_df$length),]
+max_ci_post %>%
+  select(chapter, length) -> max_ci_post
+as_tibble(max_ci_post)
+```
+### 1.5
+Данные о главе с минимальным биномиальным доверительным интервалом употребления слова “сэр”:
+```{r}
+min_ci <- full_df[full_df$average == min(full_df$average),]
+min_ci %>%
+  select(chapter, average) -> min_ci
+as_tibble(min_ci)
+```
+### 1.6
+Данные о главе с минимальным байесовским биномиальным доверительным интервалом употребления слова “сэр”:
+```{r}
+min_ci_post <- full_df[full_df$length == min(full_df$length),]
+min_ci_post %>%
+  select(chapter, length) -> min_ci_post
+as_tibble(min_ci_post)
+```
+### 1.7
+На основе данных об употреблении слов в романе П. Г. Вудхауза “Фамильная честь Вустеров” была получена достаточно подробная таблица об употреблении в романе слова "сэр" (в более полном виде $-$ *full_df* `1.4`). 
+```{r echo=FALSE}
+full_df %>%
+  select(chapter, n, n_sr, sr_procent, average, average_post, length) -> full
+a <- data.frame(full)
+a
+```
+Можно заметить, что количество слова "сэр" в главе гораздо больше разнится, нежели количество слов в главе. (Максимальное количество слов в главе отличыется от минимального примерно в 3 раза, тогда как максимальное количество слова "сэр" в главе отличается от минимального в 11 раз). Отсюда вытекает неудивительный результат, что доля слова "сэр" в главе зависит в гораздо большей степени от его количества в главе, чем от объёма самой главы.
+
+В целом доля слова "сэр" в представленных главах романа составила $0.006630395$. Средняя доля в `1.2` полученная методом бутсрэп равна $0.006630074$, что практически не отличается посчитанной без применения метода.
+
+Биномиальные доверительные интервалы полученные фриквентистским методом практически не отличаются от оных, полученных байесовским методом. Значительные различия наблюдаются лишь в той половине глав, в которых количество и общая доля слова "сэр" выше. В другой же половине доля этого слова настолько мала, что обоими методами доверительные интервалы получаются примерно одинаково широки. С увеличением доли слова в главе, уменьшаются доверительные интервалы и начинают наблюдаться различия. Однако главы с минимальным и максимальным доверительными интервалами в обоих случаях вышли одинаковые.
+
+В целом все применённые методы продемонстрировали схожие результаты. Байесовкий доверительный интервал сильнее привязан к изначальной доле слова в главе, т.к. в получившейся таблице сортировка по доле `sr_procent` и по байесовскому интервалу `average_post` не отличаются.
